@@ -381,8 +381,10 @@ src/phase5_app/
 ### Quick deploy
 
 1. **Render** — New Blueprint from this repo → set `GROQ_API_KEY` and (after step 2) `CORS_ORIGINS`
-2. **Vercel** — Import repo, Root Directory = `frontend`, set `VITE_API_BASE=https://<render-service>.onrender.com`
+2. **Vercel** — Import repo, set **Root Directory = `frontend`**, Framework = **Vite**, set `VITE_API_BASE=https://<render-service>.onrender.com`
 3. Update Render `CORS_ORIGINS` to your Vercel URL
+
+> If Vercel errors with “No FastAPI entrypoint found”, Root Directory is wrong — set it to `frontend` (not the repo root). Details: [docs/deployment.md](docs/deployment.md)
 
 Full walkthrough: [docs/deployment.md](docs/deployment.md)
 

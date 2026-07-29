@@ -52,23 +52,39 @@ Open `https://<your-service>.onrender.com/health` — expect `"status":"ok"` aft
 
 ## 2. Deploy frontend on Vercel
 
-1. In Vercel: **Add New → Project** → import `Dine.AI`
-2. Configure:
+> **Important:** Do **not** let Vercel treat this repo as a FastAPI project.
+> The backend belongs on Render. Only the React app goes on Vercel.
+
+1. In Vercel: **Add New → Project** → import your GitHub repo
+2. Under **Root Directory**, click **Edit** and set it to `frontend` (this is the critical step)
+3. Framework Preset should become **Vite**. Confirm:
 
 | Setting | Value |
 |---------|--------|
 | Root Directory | `frontend` |
-| Framework Preset | Vite |
+| Framework Preset | Vite (not FastAPI / Other) |
 | Build Command | `npm run build` |
 | Output Directory | `dist` |
 
-3. Environment variable:
+4. Environment variable:
 
 | Name | Value |
 |------|--------|
 | `VITE_API_BASE` | `https://<your-service>.onrender.com` (no trailing slash) |
 
-4. Deploy. SPA routes are handled by `frontend/vercel.json`.
+5. Deploy. SPA routes are handled by `frontend/vercel.json`.
+
+If you leave Root Directory as `.` (repo root), the root `vercel.json` still builds `frontend/` as Vite — but setting Root Directory to `frontend` is preferred.
+
+### Fix: “No FastAPI entrypoint found…”
+
+That error means Vercel auto-detected Python/FastAPI instead of Vite. Fix it:
+
+1. Project Settings → **General** → **Root Directory** → `frontend`
+2. Project Settings → **General** → Framework → **Vite**
+3. Redeploy
+
+Do **not** add `[tool.vercel] entrypoint = ...` in `pyproject.toml` unless you intentionally host the API on Vercel (we use Render for the API).
 
 ### Verify
 
