@@ -65,6 +65,7 @@ flowchart TB
 | 3 | LLM Integration | Connect to an LLM with a well-designed prompt | Phase 2 |
 | 4 | Recommendation Engine | Parse, rank, and explain results | Phase 3 |
 | 5 | Output & UI | Present recommendations to the user | Phase 4 |
+| 6 | Deployment | Host frontend (Vercel) and backend (Render) | Phase 5 |
 
 ---
 
@@ -380,7 +381,8 @@ Dine.AI/
 ├── docs/
 │   ├── problemStatement.md
 │   ├── architecture.md
-│   └── edgeCases.md
+│   ├── edgeCases.md
+│   └── deployment.md
 ├── src/
 │   ├── phase1_data/      # Phase 1 — Data Layer
 │   ├── phase2_input/     # Phase 2 — Input & Filtering
@@ -399,9 +401,37 @@ Dine.AI/
 │   ├── phase4/
 │   └── phase5/
 ├── frontend/             # Phase 5 — React UI
+├── render.yaml           # Phase 6 — Render backend blueprint
+├── requirements-prod.txt # Phase 6 — production Python deps
 ├── requirements.txt
 └── README.md
 ```
+
+---
+
+## Phase 6: Deployment
+
+**Goal:** Ship the app so users can access the React UI on Vercel and the API on Render.
+
+### Components
+
+| Piece | Host | Notes |
+|-------|------|-------|
+| `frontend/` | Vercel | Set `VITE_API_BASE` to the Render URL |
+| FastAPI (`src/phase5_app`) | Render | `render.yaml`; set `GROQ_API_KEY`, `CORS_ORIGINS` |
+
+### Deliverables
+
+- [x] Render Blueprint (`render.yaml`) and production requirements
+- [x] Vercel SPA config (`frontend/vercel.json`)
+- [x] CORS via `CORS_ORIGINS`
+- [x] Deployment guide (`docs/deployment.md`)
+
+### Exit Criteria
+
+Frontend on Vercel successfully calls `/recommend` on the Render API and returns ranked restaurants.
+
+See [deployment.md](./deployment.md) for step-by-step setup.
 
 ---
 
@@ -419,6 +449,7 @@ gantt
     Phase 4 - Recommendation Engine:p4, after p3, 2d
     section Delivery
     Phase 5 - Output & UI          :p5, after p4, 3d
+    Phase 6 - Deployment           :p6, after p5, 2d
 ```
 
 | Phase | Estimated Effort | Blockers |
@@ -428,6 +459,7 @@ gantt
 | 3 — LLM Integration | 2–3 days | API key, model selection, prompt tuning |
 | 4 — Recommendation Engine | 1–2 days | LLM response reliability |
 | 5 — Output & UI | 2–3 days | UI framework choice |
+| 6 — Deployment | 1–2 days | Platform accounts, CORS, cold starts |
 
 ---
 
@@ -440,6 +472,8 @@ gantt
 | Inconsistent LLM JSON | Parse failures | Use JSON mode / structured output; add retry with stricter prompt |
 | Missing or dirty dataset fields | Poor filter results | Preprocessor defaults; skip records with critical nulls |
 | API latency | Slow UX | Show loading state; cache dataset in memory |
+| Render free-tier cold start | First request timeout | Document warmup; keep `APP_MAX_ROWS` bounded; retry from UI |
+| CORS misconfiguration | Frontend blocked | Set `CORS_ORIGINS` to the Vercel URL after deploy |
 
 ---
 
@@ -462,3 +496,4 @@ gantt
 3. **Phase 3** — Integrate LLM client and iterate on prompt template
 4. **Phase 4** — Wire recommender orchestrator with hallucination guards
 5. **Phase 5** — Build UI and run end-to-end demo
+6. **Phase 6** — Deploy frontend to Vercel and backend to Render

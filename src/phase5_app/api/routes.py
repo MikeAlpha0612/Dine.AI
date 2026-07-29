@@ -91,10 +91,20 @@ def create_app(
         lifespan=lifespan,
     )
 
+    # CORS_ORIGINS=https://your-app.vercel.app,http://localhost:5173
+    # Unset / "*" allows all origins (credentials disabled — browser-safe).
+    raw_origins = os.getenv("CORS_ORIGINS", "*").strip()
+    if raw_origins in {"", "*"}:
+        allow_origins = ["*"]
+        allow_credentials = False
+    else:
+        allow_origins = [o.strip() for o in raw_origins.split(",") if o.strip()]
+        allow_credentials = True
+
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
-        allow_credentials=True,
+        allow_origins=allow_origins,
+        allow_credentials=allow_credentials,
         allow_methods=["*"],
         allow_headers=["*"],
     )

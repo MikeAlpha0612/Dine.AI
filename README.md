@@ -13,6 +13,8 @@ src/phase5_app/       # CLI, API, Streamlit
 frontend/             # React UI (Phase 5)
 scripts/phaseN/       # Phase demo scripts
 tests/phaseN/         # Phase unit/integration tests
+render.yaml           # Phase 6 — Render backend
+frontend/vercel.json  # Phase 6 — Vercel frontend
 ```
 
 ## Project Status
@@ -24,6 +26,7 @@ tests/phaseN/         # Phase unit/integration tests
 | 3 — LLM Integration | **Complete** | Prompt design and LLM API client |
 | 4 — Recommendation Engine | **Complete** | Rank, explain, and validate recommendations |
 | 5 — Output & UI | **Complete** | User-facing interface |
+| 6 — Deployment | **Complete** | Frontend on Vercel, backend on Render |
 
 ## Phase 1: Data Layer
 
@@ -366,6 +369,22 @@ src/phase5_app/
 - [Problem Statement](docs/problemStatement.md)
 - [Architecture](docs/architecture.md)
 - [Edge Cases](docs/edgeCases.md)
+- [Deployment (Phase 6)](docs/deployment.md)
+
+## Phase 6: Deployment (Vercel + Render)
+
+| Target | Platform | Config |
+|--------|----------|--------|
+| React frontend | [Vercel](https://vercel.com) | `frontend/` + `frontend/vercel.json` |
+| FastAPI backend | [Render](https://render.com) | `render.yaml` + `requirements-prod.txt` |
+
+### Quick deploy
+
+1. **Render** — New Blueprint from this repo → set `GROQ_API_KEY` and (after step 2) `CORS_ORIGINS`
+2. **Vercel** — Import repo, Root Directory = `frontend`, set `VITE_API_BASE=https://<render-service>.onrender.com`
+3. Update Render `CORS_ORIGINS` to your Vercel URL
+
+Full walkthrough: [docs/deployment.md](docs/deployment.md)
 
 ## Requirements
 

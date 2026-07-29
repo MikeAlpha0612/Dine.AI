@@ -1,0 +1,26 @@
+# Render Blueprint — Dine.AI backend API
+# Docs: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: dine-ai-api
+    runtime: python
+    plan: free
+    region: oregon
+    buildCommand: pip install -r requirements-prod.txt
+    startCommand: uvicorn src.phase5_app.api.routes:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHONPATH
+        value: .
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      - key: GROQ_API_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: APP_MAX_ROWS
+        value: "20000"
+      - key: APP_USE_LLM
+        value: "1"
+      - key: LLM_MODEL
+        value: llama-3.3-70b-versatile
