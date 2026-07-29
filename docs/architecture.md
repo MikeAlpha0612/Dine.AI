@@ -75,7 +75,7 @@ flowchart TB
 ### Components
 
 ```
-data/
+src/phase1_data/
 ├── loader.py          # Fetch dataset from Hugging Face
 ├── preprocessor.py    # Clean, normalize, and map fields
 ├── models.py          # Restaurant schema / dataclass
@@ -122,7 +122,7 @@ Running a script or test that loads data and filters restaurants by location ret
 ### Components
 
 ```
-input/
+src/phase2_input/
 ├── schemas.py         # UserPreference model (Pydantic / dataclass)
 ├── validator.py       # Input validation and defaults
 └── filter_engine.py   # Rule-based candidate filtering
@@ -178,7 +178,7 @@ Given sample preferences, the filter engine returns a bounded, relevant candidat
 ### Components
 
 ```
-llm/
+src/phase3_llm/
 ├── prompt_templates.py   # System + user prompt templates
 ├── prompt_builder.py     # Inject preferences + candidates into prompt
 ├── client.py             # LLM API wrapper (Groq via OpenAI-compatible API)
@@ -232,7 +232,7 @@ A standalone script sends a prompt with sample data and receives a parseable JSO
 ### Components
 
 ```
-engine/
+src/phase4_engine/
 ├── parser.py          # Parse and validate LLM JSON response
 ├── ranker.py          # Merge LLM ranking with source data
 └── recommender.py     # Orchestrator: filter → prompt → parse → rank
@@ -301,13 +301,14 @@ Calling `recommender.recommend(preferences)` returns a complete, validated `Reco
 ### Components
 
 ```
-app/
+src/phase5_app/
 ├── main.py            # Entry point (CLI or web app)
 ├── ui/
 │   ├── forms.py       # Preference input form
 │   └── results.py     # Recommendation cards / table
 └── api/               # Optional REST layer
     └── routes.py
+frontend/              # React UI (Phase 5)
 ```
 
 ### UI Options
@@ -375,21 +376,29 @@ User Preferences
 ## Suggested Project Structure
 
 ```
-MileStone1/
+Dine.AI/
 ├── docs/
 │   ├── problemStatement.md
-│   └── architecture.md
+│   ├── architecture.md
+│   └── edgeCases.md
 ├── src/
-│   ├── data/           # Phase 1
-│   ├── input/          # Phase 2
-│   ├── llm/            # Phase 3
-│   ├── engine/         # Phase 4
-│   └── app/            # Phase 5
+│   ├── phase1_data/      # Phase 1 — Data Layer
+│   ├── phase2_input/     # Phase 2 — Input & Filtering
+│   ├── phase3_llm/       # Phase 3 — LLM Integration
+│   ├── phase4_engine/    # Phase 4 — Recommendation Engine
+│   └── phase5_app/       # Phase 5 — Output & UI (CLI / API / Streamlit)
+├── scripts/
+│   ├── phase1/           # load_data.py
+│   ├── phase2/           # filter_candidates.py
+│   ├── phase3/           # test_llm.py
+│   └── phase4/           # recommend.py
 ├── tests/
-│   ├── test_data.py
-│   ├── test_filter.py
-│   ├── test_llm.py
-│   └── test_recommender.py
+│   ├── phase1/
+│   ├── phase2/
+│   ├── phase3/
+│   ├── phase4/
+│   └── phase5/
+├── frontend/             # Phase 5 — React UI
 ├── requirements.txt
 └── README.md
 ```

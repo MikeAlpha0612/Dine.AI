@@ -1,6 +1,19 @@
-# AI-Powered Restaurant Recommendation System
+# Dine.AI — AI-Powered Restaurant Recommendation System
 
-An AI-powered restaurant recommendation service inspired by Zomato. The system combines structured restaurant data with an LLM to produce personalized recommendations.
+An AI-powered restaurant recommendation service. The system combines structured restaurant data with an LLM to produce personalized recommendations.
+
+Code is organized by implementation phase:
+
+```
+src/phase1_data/      # Data layer
+src/phase2_input/     # Preferences & filtering
+src/phase3_llm/       # LLM client & prompts
+src/phase4_engine/    # Recommendation orchestration
+src/phase5_app/       # CLI, API, Streamlit
+frontend/             # React UI (Phase 5)
+scripts/phaseN/       # Phase demo scripts
+tests/phaseN/         # Phase unit/integration tests
+```
 
 ## Project Status
 
@@ -27,13 +40,13 @@ pip install -r requirements.txt
 ### Verify data load
 
 ```bash
-python scripts/load_data.py --location Bangalore --top 5
+python scripts/phase1/load_data.py --location Bangalore --top 5
 ```
 
 Optional quick test with a row limit:
 
 ```bash
-python scripts/load_data.py --max-rows 500 --location Bangalore
+python scripts/phase1/load_data.py --max-rows 500 --location Bangalore
 ```
 
 ### Run tests
@@ -41,19 +54,19 @@ python scripts/load_data.py --max-rows 500 --location Bangalore
 Unit tests (no network required):
 
 ```bash
-pytest tests/test_data.py -m "not integration"
+pytest tests/phase1/test_data.py -m "not integration"
 ```
 
 Full suite including Hugging Face integration:
 
 ```bash
-pytest tests/test_data.py
+pytest tests/phase1/test_data.py
 ```
 
 ### Project structure
 
 ```
-src/data/
+src/phase1_data/
 ├── config.py         # Dataset name, budget thresholds, location aliases
 ├── models.py         # Restaurant, FilterCriteria, Budget
 ├── loader.py         # Hugging Face loader with retry
@@ -65,8 +78,8 @@ src/data/
 ### Usage
 
 ```python
-from src.data.models import Budget, FilterCriteria
-from src.data.repository import RestaurantRepository
+from src.phase1_data.models import Budget, FilterCriteria
+from src.phase1_data.repository import RestaurantRepository
 
 repo = RestaurantRepository()
 repo.load()
@@ -92,20 +105,20 @@ Validates user preferences and returns a bounded, ranked candidate list ready fo
 ### Verify filtering
 
 ```bash
-python scripts/filter_candidates.py --location Bangalore --budget medium --cuisine Italian --min-rating 4.0
+python scripts/phase2/filter_candidates.py --location Bangalore --budget medium --cuisine Italian --min-rating 4.0
 ```
 
 ### Run tests
 
 ```bash
-pytest tests/test_filter.py -m "not integration" -v
-pytest tests/test_filter.py -v   # includes Hugging Face integration
+pytest tests/phase2/test_filter.py -m "not integration" -v
+pytest tests/phase2/test_filter.py -v   # includes Hugging Face integration
 ```
 
 ### Project structure
 
 ```
-src/input/
+src/phase2_input/
 ├── config.py         # MAX_CANDIDATES, field limits
 ├── schemas.py        # UserPreference, FilterResult
 ├── validator.py      # validate_preferences()
@@ -116,8 +129,8 @@ src/input/
 ### Usage
 
 ```python
-from src.data.repository import RestaurantRepository
-from src.input import FilterEngine, validate_preferences
+from src.phase1_data.repository import RestaurantRepository
+from src.phase2_input import FilterEngine, validate_preferences
 
 repo = RestaurantRepository()
 repo.load()
@@ -165,26 +178,26 @@ Get an API key at [console.groq.com/keys](https://console.groq.com/keys).
 Dry run (prints prompt, no API call):
 
 ```bash
-python scripts/test_llm.py --location Bangalore --budget medium --cuisine Italian --dry-run
+python scripts/phase3/test_llm.py --location Bangalore --budget medium --cuisine Italian --dry-run
 ```
 
 Live LLM call:
 
 ```bash
-python scripts/test_llm.py --location Bangalore --budget medium --cuisine Italian --min-rating 4.0
+python scripts/phase3/test_llm.py --location Bangalore --budget medium --cuisine Italian --min-rating 4.0
 ```
 
 ### Run tests
 
 ```bash
-pytest tests/test_llm.py -m "not integration" -v
-pytest tests/test_llm.py -v   # includes live LLM test when GROQ_API_KEY is set
+pytest tests/phase3/test_llm.py -m "not integration" -v
+pytest tests/phase3/test_llm.py -v   # includes live LLM test when GROQ_API_KEY is set
 ```
 
 ### Project structure
 
 ```
-src/llm/
+src/phase3_llm/
 ├── config.py           # LLMConfig (Groq defaults)
 ├── prompt_templates.py # System + user prompt templates
 ├── prompt_builder.py   # build_prompt(), serialize_candidates()
@@ -197,9 +210,9 @@ src/llm/
 ### Usage
 
 ```python
-from src.data.repository import RestaurantRepository
-from src.input import FilterEngine, validate_preferences
-from src.llm import LLMClient
+from src.phase1_data.repository import RestaurantRepository
+from src.phase2_input import FilterEngine, validate_preferences
+from src.phase3_llm import LLMClient
 
 repo = RestaurantRepository()
 repo.load()
@@ -234,22 +247,22 @@ Orchestrates filter → LLM → validate → enrich. Drops hallucinated restaura
 
 ```bash
 # Rule-based fallback only (no API key needed)
-python scripts/recommend.py --location Bangalore --budget medium --no-llm
+python scripts/phase4/recommend.py --location Bangalore --budget medium --no-llm
 
 # Full pipeline with LLM
-python scripts/recommend.py --location Bangalore --budget medium --cuisine Italian --min-rating 4.0
+python scripts/phase4/recommend.py --location Bangalore --budget medium --cuisine Italian --min-rating 4.0
 ```
 
 ### Run tests
 
 ```bash
-pytest tests/test_recommender.py -v
+pytest tests/phase4/test_recommender.py -v
 ```
 
 ### Project structure
 
 ```
-src/engine/
+src/phase4_engine/
 ├── config.py        # top_n, fuzzy threshold
 ├── schemas.py       # Recommendation, RecommendationResult
 ├── parser.py        # parse_llm_json()
@@ -260,9 +273,9 @@ src/engine/
 ### Usage
 
 ```python
-from src.data.repository import RestaurantRepository
-from src.engine import Recommender
-from src.llm import LLMClient
+from src.phase1_data.repository import RestaurantRepository
+from src.phase4_engine import Recommender
+from src.phase3_llm import LLMClient
 
 repo = RestaurantRepository()
 repo.load()
@@ -291,7 +304,7 @@ User-facing interfaces: Streamlit web app, CLI, and optional FastAPI REST API.
 cd c:\Users\ACER\MileStone1
 $env:PYTHONPATH="c:\Users\ACER\MileStone1"
 $env:APP_MAX_ROWS="20000"
-& "C:\Users\ACER\anaconda3\python.exe" -m uvicorn src.app.api.routes:app --host 127.0.0.1 --port 8000
+& "C:\Users\ACER\anaconda3\python.exe" -m uvicorn src.phase5_app.api.routes:app --host 127.0.0.1 --port 8000
 
 # Terminal 2 — Frontend
 cd c:\Users\ACER\MileStone1\frontend
@@ -306,12 +319,12 @@ Pages:
 - `/recommend` — AI recommendation results + explanations
 - `/restaurant/:id` — restaurant detail (why it was recommended)
 
-Legacy Streamlit UI remains at `src/app/web.py` if needed.
+Legacy Streamlit UI remains at `src/phase5_app/web.py` if needed.
 
 ### CLI
 
 ```bash
-python -m src.app.main --location Bangalore --budget medium --cuisine Italian --no-llm
+python -m src.phase5_app.main --location Bangalore --budget medium --cuisine Italian --no-llm
 ```
 
 Without required flags, the CLI prints usage and exits with code 2.
@@ -319,7 +332,7 @@ Without required flags, the CLI prints usage and exits with code 2.
 ### REST API
 
 ```bash
-uvicorn src.app.api.routes:app --reload
+uvicorn src.phase5_app.api.routes:app --reload
 ```
 
 ```bash
@@ -331,13 +344,13 @@ curl -X POST http://127.0.0.1:8000/recommend ^
 ### Run tests
 
 ```bash
-pytest tests/test_app.py -v
+pytest tests/phase5/test_app.py -v
 ```
 
 ### Project structure
 
 ```
-src/app/
+src/phase5_app/
 ├── main.py          # CLI entry point
 ├── web.py           # Streamlit UI
 ├── service.py       # Shared AppService

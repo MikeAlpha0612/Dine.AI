@@ -3,7 +3,7 @@ requires = ["setuptools>=68.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "zomato-recommender"
+name = "dine-ai"
 version = "0.1.0"
 description = "AI-powered restaurant recommendation system"
 readme = "README.md"
